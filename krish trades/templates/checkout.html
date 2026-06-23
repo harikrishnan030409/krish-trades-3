@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Checkout — KRISH TRADES{% endblock %}
+
+{% block content %}
+<section class="container py-5 fade-in-section">
+    <h2 class="mb-4 section-title">Checkout</h2>
+    <div class="row g-4">
+        <!-- Left: Delivery + Payment -->
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="bi bi-geo-alt text-primary me-2"></i>Delivery Details</h5>
+                    <form method="POST" id="checkoutForm">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Full Name *</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number *</label>
+                                <input type="tel" name="phone" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Email (optional)</label>
+                                <input type="email" name="email" class="form-control">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address *</label>
+                                <input type="text" name="address_line" class="form-control" placeholder="House no, street, area" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">City *</label>
+                                <input type="text" name="city" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">State *</label>
+                                <input type="text" name="state" class="form-control" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Pincode *</label>
+                                <input type="text" name="pincode" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Delivery Notes</label>
+                                <textarea name="notes" class="form-control" rows="2" placeholder="Landmark, preferred time, etc."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Payment method selector -->
+                        <hr class="my-4">
+                        <h5 class="mb-3"><i class="bi bi-credit-card text-primary me-2"></i>Payment Method</h5>
+                        <div class="payment-method-grid">
+                            <label class="payment-method-card" id="label-online">
+                                <input type="radio" name="payment_method" value="online" id="pay-online" checked>
+                                <div class="payment-method-body">
+                                    <i class="bi bi-credit-card-2-front fs-3"></i>
+                                    <strong>Online Payment</strong>
+                                    <small class="text-muted">UPI · Cards · Netbanking</small>
+                                    <div class="payment-chips-row mt-1">
+                                        <span class="payment-chip-sm">UPI</span>
+                                        <span class="payment-chip-sm">Visa</span>
+                                        <span class="payment-chip-sm">MC</span>
+                                        <span class="payment-chip-sm">RuPay</span>
+                                    </div>
+                                </div>
+                            </label>
+                            <label class="payment-method-card" id="label-cod">
+                                <input type="radio" name="payment_method" value="cod" id="pay-cod">
+                                <div class="payment-method-body">
+                                    <i class="bi bi-cash-coin fs-3"></i>
+                                    <strong>Cash on Delivery</strong>
+                                    <small class="text-muted">Pay when delivered</small>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="online-note" class="alert alert-info mt-3 mb-0">
+                            <i class="bi bi-shield-check"></i> You'll be redirected to Razorpay's secure checkout to pay via UPI, card, or netbanking.
+                        </div>
+                        <div id="cod-note" class="alert alert-success mt-3 mb-0 d-none">
+                            <i class="bi bi-cash-coin"></i> Pay in cash when your order arrives. No advance payment needed.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-4" id="placeOrderBtn">
+                            <i class="bi bi-lock-fill me-2"></i>Place Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Order summary -->
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0 sticky-top" style="top:80px;">
+                <div class="card-body">
+                    <h5 class="mb-3">Order Summary</h5>
+                    {% for item in items %}
+                    <div class="d-flex justify-content-between small mb-2 align-items-center">
+                        <span class="me-2">{{ item.product.name }} <span class="badge bg-secondary">×{{ item.quantity }}</span></span>
+                        <span class="fw-semibold">₹{{ "%.0f"|format(item.subtotal) }}</span>
+                    </div>
+                    {% endfor %}
+                    <hr>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>Subtotal</span><span>₹{{ "%.0f"|format(total) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between small mb-1 text-success">
+                        <span><i class="bi bi-truck"></i> Shipping</span>
+                        <span>{% if total >= 999 %}FREE{% else %}₹49{% endif %}</span>
+                    </div>
+                    {% if coupon %}
+                    <div class="d-flex justify-content-between small mb-1 text-success">
+                        <span><i class="bi bi-ticket-perforated"></i> {{ coupon.code }}</span>
+                        <span>−₹{{ "%.0f"|format(discount) }}</span>
+                    </div>
+                    {% endif %}
+                    <hr>
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>Total</span>
+                        <span>₹{{ "%.0f"|format(grand_total) }}</span>
+                    </div>
+                    <p class="text-muted small mt-2 mb-0"><i class="bi bi-shield-lock"></i> Secure checkout</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const onlineRadio = document.getElementById('pay-online');
+const codRadio    = document.getElementById('pay-cod');
+const onlineNote  = document.getElementById('online-note');
+const codNote     = document.getElementById('cod-note');
+const placeBtn    = document.getElementById('placeOrderBtn');
+const labelOnline = document.getElementById('label-online');
+const labelCod    = document.getElementById('label-cod');
+
+function updatePaymentUI() {
+    if (onlineRadio.checked) {
+        onlineNote.classList.remove('d-none');
+        codNote.classList.add('d-none');
+        placeBtn.innerHTML = '<i class="bi bi-lock-fill me-2"></i>Pay Online — ₹{{ "%.0f"|format(grand_total) }}';
+        labelOnline.classList.add('active');
+        labelCod.classList.remove('active');
+    } else {
+        codNote.classList.remove('d-none');
+        onlineNote.classList.add('d-none');
+        placeBtn.innerHTML = '<i class="bi bi-bag-check me-2"></i>Place Order (COD)';
+        labelCod.classList.add('active');
+        labelOnline.classList.remove('active');
+    }
+}
+onlineRadio.addEventListener('change', updatePaymentUI);
+codRadio.addEventListener('change', updatePaymentUI);
+updatePaymentUI();
+</script>
+{% endblock %}

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}KRISH TRADES{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body>
+
+<!-- Offer ticker -->
+<div class="offer-ticker">
+    <div class="offer-ticker__track">
+        🌙 Bakrid Special Offers — Up to 30% OFF! &nbsp;|&nbsp; 💳 Online Payment — UPI, Cards &amp; Netbanking &nbsp;|&nbsp; 🚚 Free shipping on orders above ₹999 &nbsp;|&nbsp; 🎁 Use code <strong>ONLINE150</strong> for ₹150 off &nbsp;|&nbsp; ✨ New arrivals every week &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        🌙 Bakrid Special Offers — Up to 30% OFF! &nbsp;|&nbsp; 💳 Online Payment — UPI, Cards &amp; Netbanking &nbsp;|&nbsp; 🚚 Free shipping on orders above ₹999 &nbsp;|&nbsp; 🎁 Use code <strong>ONLINE150</strong> for ₹150 off &nbsp;|&nbsp; ✨ New arrivals every week
+    </div>
+</div>
+
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand brand-mark" href="{{ url_for('home') }}">
+            <span class="brand-mark__krish">Krish</span><span class="brand-mark__divider"></span><span class="brand-mark__trades">Trades</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <form class="d-flex mx-auto my-2 my-lg-0" style="max-width:420px;width:100%;" action="{{ url_for('shop') }}" method="GET">
+                <input class="form-control nav-search" type="search" name="q" placeholder="Search products…" value="{{ request.args.get('q','') }}">
+                <button class="btn btn-outline-light ms-2" type="submit"><i class="bi bi-search"></i></button>
+            </form>
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('home') }}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ url_for('shop') }}">Shop</a></li>
+                <li class="nav-item"><a class="nav-link nav-bakrid" href="{{ url_for('shop', bakrid='1') }}">🌙 Offers</a></li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative cart-nav-link" href="{{ url_for('cart_view') }}">
+                        <i class="bi bi-cart3 fs-5"></i> Cart
+                        {% if session.get('cart') and session['cart']|length > 0 %}
+                        <span class="badge rounded-pill bg-danger cart-badge">{{ session['cart']|length }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-3">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show animate__animated" role="alert" style="animation:fade-up 0.4s ease both;">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<main>{% block content %}{% endblock %}</main>
+
+<footer class="footer-main mt-5 py-5">
+    <div class="container">
+        <div class="row gy-4">
+            <div class="col-md-4">
+                <p class="brand-mark mb-2" style="justify-content:flex-start;">
+                    <span class="brand-mark__krish">Krish</span><span class="brand-mark__divider"></span><span class="brand-mark__trades">Trades</span>
+                </p>
+                <p class="small text-secondary mb-3">Quality products, delivered to your door. Pay online or on delivery.</p>
+                <div class="payment-icons">
+                    <span class="payment-chip">UPI</span>
+                    <span class="payment-chip">Visa</span>
+                    <span class="payment-chip">Mastercard</span>
+                    <span class="payment-chip">RuPay</span>
+                    <span class="payment-chip">COD</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h6 class="footer-heading">Quick Links</h6>
+                <ul class="list-unstyled small">
+                    <li><a href="{{ url_for('shop') }}" class="footer-link"><i class="bi bi-chevron-right me-1"></i>All Products</a></li>
+                    <li><a href="{{ url_for('shop', bakrid='1') }}" class="footer-link"><i class="bi bi-chevron-right me-1"></i>🌙 Bakrid Offers</a></li>
+                    <li><a href="{{ url_for('cart_view') }}" class="footer-link"><i class="bi bi-chevron-right me-1"></i>My Cart</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6 class="footer-heading">Secure Checkout</h6>
+                <p class="small text-secondary">Payments powered by Razorpay — UPI, Credit/Debit cards, Netbanking &amp; Wallets. Also Cash on Delivery.</p>
+                <p class="small text-secondary mt-2 mb-0">
+                    <i class="bi bi-shield-check text-success me-1"></i> SSL encrypted &nbsp;·&nbsp;
+                    <i class="bi bi-lock text-warning me-1"></i> PCI-DSS compliant
+                </p>
+            </div>
+        </div>
+        <hr class="footer-hr mt-4">
+        <p class="mb-0 small text-center text-secondary">&copy; 2026 KRISH TRADES. All rights reserved. | <a href="{{ url_for('admin_login') }}" class="footer-link d-inline">Admin</a></p>
+    </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/reveal.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

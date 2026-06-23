@@ -1,0 +1,65 @@
+{% extends "admin/base_admin.html" %}
+{% block title %}Order {{ order.order_number }} - Admin{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('admin_orders') }}" class="small text-muted">&larr; Back to Orders</a>
+<h3 class="mb-4 mt-2">Order {{ order.order_number }}</h3>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h6 class="mb-3">Items</h6>
+                <table class="table">
+                    <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Subtotal</th></tr></thead>
+                    <tbody>
+                        {% for item in order.items %}
+                        <tr>
+                            <td>{{ item.product_name }}</td>
+                            <td>₹{{ "%.2f"|format(item.unit_price) }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>₹{{ "%.2f"|format(item.subtotal) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr><td colspan="3" class="text-end">Subtotal</td><td>₹{{ "%.2f"|format(order.subtotal_amount) }}</td></tr>
+                        {% if order.coupon_code %}
+                        <tr class="text-success"><td colspan="3" class="text-end"><i class="bi bi-ticket-perforated"></i> Coupon ({{ order.coupon_code }})</td><td>−₹{{ "%.2f"|format(order.coupon_discount) }}</td></tr>
+                        {% endif %}
+                        <tr class="fw-bold"><td colspan="3" class="text-end">Total</td><td>₹{{ "%.2f"|format(order.total_amount) }}</td></tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <h6 class="mb-3">Customer & Delivery Info</h6>
+                <p class="mb-1 small"><strong>{{ order.customer_name }}</strong></p>
+                <p class="mb-1 small">{{ order.address_line }}, {{ order.city }}, {{ order.state }} - {{ order.pincode }}</p>
+                <p class="mb-1 small">Phone: {{ order.phone }}</p>
+                {% if order.email %}<p class="mb-1 small">Email: {{ order.email }}</p>{% endif %}
+                {% if order.notes %}<p class="mb-1 small text-muted">Notes: {{ order.notes }}</p>{% endif %}
+                <p class="mb-0 small mt-2"><span class="badge bg-info-subtle text-info">{{ order.payment_method }}</span></p>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+                <h6 class="mb-3">Update Status</h6>
+                <form method="POST" action="{{ url_for('admin_update_order_status', order_id=order.id) }}" class="d-flex gap-2">
+                    <select name="status" class="form-select">
+                        {% for s in ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'] %}
+                        <option value="{{ s }}" {{ 'selected' if order.status == s else '' }}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Update</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

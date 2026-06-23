@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Order Confirmed — KRISH TRADES{% endblock %}
+
+{% block content %}
+<section class="container py-5 fade-in-section" style="max-width:680px;">
+    <div class="order-success-card">
+        <!-- Animated checkmark -->
+        <div class="success-icon-wrap">
+            <div class="success-ring"></div>
+            <div class="success-check"><i class="bi bi-check-lg"></i></div>
+        </div>
+        <h2 class="mt-4 mb-1" style="color:var(--kt-green-dark);">Order Placed! 🎉</h2>
+        <p class="text-muted mb-1">Thank you for shopping with Krish Trades.</p>
+        <p class="fw-semibold mb-4">Order #{{ order.order_number }}</p>
+
+        <!-- Payment badge -->
+        <div class="mb-4">
+            {% if 'Razorpay' in order.payment_method or 'Online' in order.payment_method %}
+            <span class="status-chip status-confirmed"><i class="bi bi-credit-card me-1"></i> Paid Online</span>
+            {% else %}
+            <span class="status-chip status-pending"><i class="bi bi-cash-coin me-1"></i> Cash on Delivery</span>
+            {% endif %}
+            &nbsp;
+            <span class="status-chip status-{{ order.status|lower }}">{{ order.status }}</span>
+        </div>
+
+        <!-- Details grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <div class="order-info-box">
+                    <p class="info-label"><i class="bi bi-person me-1"></i>Customer</p>
+                    <p class="info-value">{{ order.customer_name }}</p>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="order-info-box">
+                    <p class="info-label"><i class="bi bi-telephone me-1"></i>Phone</p>
+                    <p class="info-value">{{ order.phone }}</p>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="order-info-box">
+                    <p class="info-label"><i class="bi bi-geo-alt me-1"></i>Delivery Address</p>
+                    <p class="info-value">{{ order.address_line }}, {{ order.city }}, {{ order.state }} — {{ order.pincode }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Items -->
+        <div class="order-items-wrap mb-4">
+            <h6 class="mb-3 text-muted text-uppercase" style="font-size:0.75rem;letter-spacing:1px;">Order Items</h6>
+            {% for item in order.items %}
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <div>
+                    <span class="fw-semibold">{{ item.product_name }}</span>
+                    <span class="text-muted small ms-2">× {{ item.quantity }}</span>
+                </div>
+                <span class="fw-semibold">₹{{ "%.2f"|format(item.unit_price * item.quantity) }}</span>
+            </div>
+            {% endfor %}
+            {% if order.coupon_discount > 0 %}
+            <div class="d-flex justify-content-between py-2 text-success small">
+                <span>Coupon ({{ order.coupon_code }})</span>
+                <span>−₹{{ "%.2f"|format(order.coupon_discount) }}</span>
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-between py-2 fw-bold fs-5">
+                <span>Total</span>
+                <span style="color:var(--kt-green-dark);">₹{{ "%.2f"|format(order.total_amount) }}</span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <a href="{{ url_for('shop') }}" class="btn btn-primary btn-lg">
+                <i class="bi bi-grid me-2"></i>Continue Shopping
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.order-success-card {
+    background:#fff; border-radius:20px; padding:3rem 2.5rem;
+    box-shadow:0 12px 48px rgba(30,17,71,0.12); text-align:center;
+    animation:scale-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes scale-in { from{opacity:0;transform:scale(0.85);} to{opacity:1;transform:scale(1);} }
+.success-icon-wrap { position:relative; width:90px; height:90px; margin:0 auto; }
+.success-ring {
+    position:absolute; inset:0; border-radius:50%;
+    border:3px solid var(--kt-green);
+    animation:ring-expand 0.6s ease-out both 0.2s;
+}
+@keyframes ring-expand {
+    from{transform:scale(0);opacity:0;}
+    to{transform:scale(1);opacity:1;}
+}
+.success-check {
+    position:absolute; inset:0; border-radius:50%;
+    background:linear-gradient(135deg, var(--kt-green), var(--kt-green-dark));
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.2rem; color:#fff;
+    animation:check-pop 0.5s cubic-bezier(0.34,1.56,0.64,1) both 0.35s;
+    opacity:0; animation-fill-mode:forwards;
+}
+@keyframes check-pop {
+    from{transform:scale(0) rotate(-20deg);opacity:0;}
+    to{transform:scale(1) rotate(0);opacity:1;}
+}
+.status-chip {
+    display:inline-block; border-radius:20px; padding:4px 14px;
+    font-size:0.78rem; font-weight:600;
+}
+.status-confirmed { background:rgba(15,107,79,0.1); color:var(--kt-green-dark); }
+.status-pending   { background:rgba(226,163,59,0.15); color:var(--kt-marigold-deep); }
+.status-shipped   { background:rgba(30,17,71,0.1); color:var(--kt-ink); }
+.status-delivered { background:rgba(15,107,79,0.18); color:var(--kt-green-dark); }
+.order-info-box { background:#faf7f2; border-radius:10px; padding:12px 14px; text-align:left; height:100%; }
+.info-label { color:#888; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:3px; }
+.info-value { font-weight:600; margin:0; font-size:0.92rem; }
+.order-items-wrap { background:#faf7f2; border-radius:12px; padding:16px 20px; text-align:left; }
+</style>
+{% endblock %}

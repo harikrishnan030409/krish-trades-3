@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Your Cart — KRISH TRADES{% endblock %}
+
+{% block content %}
+<section class="container py-5 fade-in-section">
+    <h2 class="mb-4 section-title reveal-on-scroll">Your Cart</h2>
+
+    {% if items %}
+    <div class="row g-4">
+        <!-- Cart items -->
+        <div class="col-lg-8">
+            <div class="cart-table-wrap reveal-on-scroll">
+                {% for item in items %}
+                <div class="cart-row d-flex align-items-center gap-3 p-3 rounded-3 mb-2">
+                    <div class="cart-img-wrap">
+                        {% if item.product.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + item.product.image) }}" style="width:68px;height:68px;object-fit:cover;border-radius:10px;" alt="{{ item.product.name }}">
+                        {% else %}
+                        <div style="width:68px;height:68px;background:linear-gradient(135deg,#f0e0c4,#faf1e2);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:var(--kt-marigold-deep);">
+                            <i class="bi bi-bag"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1 min-w-0">
+                        <a href="{{ url_for('product_detail', product_id=item.product.id) }}" class="text-decoration-none text-dark fw-semibold d-block text-truncate">{{ item.product.name }}</a>
+                        <p class="text-muted small mb-0">{{ item.product.category }}</p>
+                        {% if item.product.has_discount %}
+                        <span class="price-final">₹{{ "%.2f"|format(item.product.final_price) }}</span>
+                        {% else %}
+                        <span class="fw-semibold">₹{{ "%.2f"|format(item.product.price) }}</span>
+                        {% endif %}
+                    </div>
+                    <div style="min-width:120px;">
+                        <form method="POST" action="{{ url_for('cart_update', product_id=item.product.id) }}" class="qty-mini">
+                            <div class="d-flex align-items-center">
+                                <button type="button" class="qty-mini-btn" onclick="this.form.quantity.value=Math.max(1,parseInt(this.form.quantity.value)-1);">−</button>
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" class="qty-mini-input">
+                                <button type="button" class="qty-mini-btn" onclick="this.form.quantity.value=Math.min({{ item.product.stock }},parseInt(this.form.quantity.value)+1);">+</button>
+                            </div>
+                            <button type="submit" class="btn btn-link btn-sm text-muted p-0 mt-1" style="font-size:0.72rem;">Update</button>
+                        </form>
+                    </div>
+                    <div class="text-end" style="min-width:80px;">
+                        <strong>₹{{ "%.2f"|format(item.subtotal) }}</strong>
+                    </div>
+                    <form method="POST" action="{{ url_for('cart_remove', product_id=item.product.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove"><i class="bi bi-trash"></i></button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Continue shopping -->
+            <a href="{{ url_for('shop') }}" class="btn btn-outline-secondary mt-2">
+                <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+            </a>
+        </div>
+
+        <!-- Summary sidebar -->
+        <div class="col-lg-4">
+            <!-- Coupon -->
+            <div class="card shadow-sm border-0 mb-3 reveal-on-scroll stagger-1">
+                <div class="card-body">
+                    <h6 class="mb-3"><i class="bi bi-ticket-perforated me-2 text-primary"></i>Promo Code</h6>
+                    {% if coupon %}
+                    <div class="d-flex justify-content-between align-items-center coupon-applied">
+                        <div>
+                            <span class="badge bg-success-subtle text-success px-3 py-2">{{ coupon.code }}</span>
+                            <span class="text-success small ms-2">−₹{{ "%.2f"|format(discount) }}</span>
+                        </div>
+                        <form method="POST" action="{{ url_for('cart_remove_coupon') }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <form method="POST" action="{{ url_for('cart_apply_coupon') }}" class="d-flex gap-2">
+                        <input type="text" name="coupon_code" class="form-control form-control-sm text-uppercase" placeholder="Enter code…">
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Apply</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Order summary -->
+            <div class="card shadow-sm border-0 reveal-on-scroll stagger-2">
+                <div class="card-body">
+                    <h6 class="mb-3 fw-bold">Order Summary</h6>
+                    <div class="d-flex justify-content-between mb-2 small">
+                        <span>Subtotal</span><span>₹{{ "%.2f"|format(total) }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 small text-success">
+                        <span><i class="bi bi-truck me-1"></i>Shipping</span>
+                        <span>{% if total >= 999 %}FREE{% else %}₹49{% endif %}</span>
+                    </div>
+                    {% if coupon %}
+                    <div class="d-flex justify-content-between mb-2 small text-success">
+                        <span><i class="bi bi-tag me-1"></i>Coupon ({{ coupon.code }})</span>
+                        <span>−₹{{ "%.2f"|format(discount) }}</span>
+                    </div>
+                    {% endif %}
+                    <hr class="my-2">
+                    <div class="d-flex justify-content-between fw-bold fs-5 mb-3">
+                        <span>Total</span><span style="color:var(--kt-green-dark);">₹{{ "%.2f"|format(grand_total) }}</span>
+                    </div>
+                    <a href="{{ url_for('checkout') }}" class="btn btn-primary btn-lg w-100">
+                        <i class="bi bi-lock-fill me-2"></i>Proceed to Checkout
+                    </a>
+                    <p class="text-muted small text-center mt-2 mb-0"><i class="bi bi-shield-check me-1"></i>Secure checkout</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="text-center py-5 reveal-on-scroll">
+        <div class="empty-cart-icon">
+            <i class="bi bi-cart-x"></i>
+        </div>
+        <h4 class="text-muted mt-3">Your cart is empty</h4>
+        <p class="text-muted small">Add some products and come back!</p>
+        <a href="{{ url_for('shop') }}" class="btn btn-primary btn-lg mt-2">Start Shopping</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.cart-table-wrap { background:#fff; border-radius:16px; padding:8px; box-shadow:0 4px 20px rgba(30,17,71,0.07); }
+.cart-row { background:#fff; transition:background 0.2s; border:1px solid transparent; }
+.cart-row:hover { background:rgba(226,163,59,0.04); border-color:rgba(226,163,59,0.15); }
+.qty-mini { display:inline-flex; flex-direction:column; align-items:center; }
+.qty-mini .d-flex { border:1.5px solid rgba(30,17,71,0.13); border-radius:8px; overflow:hidden; }
+.qty-mini-btn { background:transparent; border:none; padding:5px 10px; font-weight:700; cursor:pointer; transition:background 0.15s; }
+.qty-mini-btn:hover { background:rgba(30,17,71,0.07); }
+.qty-mini-input { width:36px; border:none; text-align:center; font-weight:600; font-size:0.88rem; outline:none; -moz-appearance:textfield; }
+.qty-mini-input::-webkit-outer-spin-button,.qty-mini-input::-webkit-inner-spin-button{-webkit-appearance:none;}
+.coupon-applied { animation:fade-up 0.4s ease both; }
+.empty-cart-icon {
+    width:110px; height:110px; border-radius:50%; margin:0 auto;
+    background:linear-gradient(135deg,#f0e0c4,#faf1e2);
+    display:flex; align-items:center; justify-content:center;
+    font-size:3.2rem; color:var(--kt-marigold-deep);
+    animation:float-slow 4s ease-in-out infinite;
+}
+</style>
+{% endblock %}

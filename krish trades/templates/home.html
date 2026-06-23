@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% block title %}Home — KRISH TRADES{% endblock %}
+
+{% block content %}
+
+<!-- ═══════════ HERO ═══════════ -->
+<section class="hero-section text-white py-5">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-7 text-center text-lg-start hero-content">
+                <p class="hero-eyebrow"><i class="bi bi-truck me-1"></i> Free shipping on orders above ₹999</p>
+                <h1 class="display-3 fw-bold mb-3">
+                    Your One-Stop<br>
+                    <span style="color:var(--kt-marigold);">Quality Shop</span>
+                </h1>
+                <p class="lead hero-lead mb-4">Electronics, clothing, fitness, home essentials &amp; more — delivered fast. Pay online or on delivery.</p>
+                <div class="hero-ctas d-flex flex-wrap gap-3 justify-content-center justify-content-lg-start">
+                    <a href="{{ url_for('shop') }}" class="btn btn-light btn-lg px-4">
+                        <i class="bi bi-grid me-2"></i>Shop Now
+                    </a>
+                    <a href="{{ url_for('shop', bakrid='1') }}" class="btn btn-warning btn-lg px-4">
+                        🌙 Bakrid Offers
+                    </a>
+                </div>
+                <div class="hero-trust mt-4 d-flex flex-wrap justify-content-center justify-content-lg-start">
+                    <span class="trust-chip"><i class="bi bi-shield-check me-1"></i> Secure Pay</span>
+                    <span class="trust-chip"><i class="bi bi-truck me-1"></i> Fast Delivery</span>
+                    <span class="trust-chip"><i class="bi bi-arrow-counterclockwise me-1"></i> Easy Returns</span>
+                    <span class="trust-chip"><i class="bi bi-cash-coin me-1"></i> COD Available</span>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-flex justify-content-center align-items-center" style="position:relative;min-height:320px;">
+                <!-- Decorative floating icons -->
+                <div class="hero-float-grid">
+                    <div class="hfg-item hfg-1"><i class="bi bi-lightning-charge fs-2"></i></div>
+                    <div class="hfg-item hfg-2"><i class="bi bi-bag-heart fs-2"></i></div>
+                    <div class="hfg-item hfg-3"><i class="bi bi-heart-pulse fs-2"></i></div>
+                    <div class="hfg-item hfg-4"><i class="bi bi-house-heart fs-2"></i></div>
+                    <div class="hfg-item hfg-5"><i class="bi bi-basket fs-2"></i></div>
+                    <div class="hfg-center"><i class="bi bi-shop" style="font-size:3.5rem;color:var(--kt-marigold);"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ STATS STRIP ═══════════ -->
+<section class="container py-4 reveal-on-scroll">
+    <div class="stats-strip">
+        <div class="stats-item">
+            <span class="stats-num" data-count-to="500">0</span><span class="stats-num">+</span>
+            <span class="stats-label">Products</span>
+        </div>
+        <div class="stats-divider"></div>
+        <div class="stats-item">
+            <span class="stats-num" data-count-to="2000">0</span><span class="stats-num">+</span>
+            <span class="stats-label">Happy Customers</span>
+        </div>
+        <div class="stats-divider"></div>
+        <div class="stats-item">
+            <span class="stats-num" data-count-to="6">0</span>
+            <span class="stats-label">Categories</span>
+        </div>
+        <div class="stats-divider"></div>
+        <div class="stats-item">
+            <span class="stats-num">4.9</span><i class="bi bi-star-fill text-warning ms-1" style="font-size:1.1rem;"></i>
+            <span class="stats-label">Avg. Rating</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ CATEGORIES ═══════════ -->
+{% if categories %}
+<section class="container py-4">
+    <div class="d-flex align-items-center justify-content-between mb-3 reveal-on-scroll">
+        <h2 class="section-title mb-0">Shop by Category</h2>
+    </div>
+    <div class="category-scroll">
+        {% set cat_icons = {
+            'Electronics': 'bi-lightning-charge',
+            'Clothing': 'bi-bag-heart',
+            'Home & Kitchen': 'bi-house-heart',
+            'Fitness': 'bi-heart-pulse',
+            'Accessories': 'bi-watch',
+            'Grocery': 'bi-basket'
+        } %}
+        {% for cat in categories %}
+        <a href="{{ url_for('shop', category=cat) }}" class="category-chip reveal-on-scroll stagger-{{ loop.index }}">
+            <i class="bi {{ cat_icons.get(cat, 'bi-tag') }}"></i>
+            <span>{{ cat }}</span>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════════ BAKRID ═══════════ -->
+{% if bakrid_products %}
+<section class="container py-4">
+    <div class="bakrid-section reveal-on-scroll">
+        <span class="bakrid-decor bakrid-decor--moon">🌙</span>
+        <span class="bakrid-decor bakrid-decor--star1">✨</span>
+        <span class="bakrid-decor bakrid-decor--star2">✨</span>
+        <div class="bakrid-content">
+            <span class="bakrid-badge">LIMITED TIME</span>
+            <h2 class="bakrid-title mb-1">🌙 Bakrid Special Offers</h2>
+            <p class="mb-4" style="opacity:0.9;">Celebrate with up to 30% off on curated festive products.</p>
+            <div class="row g-3">
+                {% for product in bakrid_products %}
+                <div class="col-6 col-md-3">
+                    <div class="card h-100 shadow-sm product-anim">
+                        <div class="card-img-wrap">
+                            {% if product.has_discount %}<span class="discount-badge">{{ product.discount_percent|int }}% OFF</span>{% endif %}
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                                {% if product.image %}
+                                <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="card-img-top" style="height:170px;object-fit:cover;" alt="{{ product.name }}">
+                                {% else %}
+                                <div class="card-img-placeholder"><i class="bi bi-bag"></i></div>
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="card-body text-dark">
+                            <h6 class="card-title mb-1">
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                            </h6>
+                            {% if product.has_discount %}
+                            <p class="mb-0"><span class="price-original">₹{{ "%.0f"|format(product.price) }}</span> <span class="price-final">₹{{ "%.0f"|format(product.final_price) }}</span></p>
+                            {% else %}
+                            <p class="fw-bold mb-0">₹{{ "%.0f"|format(product.price) }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent border-0 pb-3">
+                            <form method="POST" action="{{ url_for('cart_add', product_id=product.id) }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button class="btn btn-sm btn-add-cart w-100"><i class="bi bi-cart-plus"></i> Add to Cart</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="text-center mt-4">
+                <a href="{{ url_for('shop', bakrid='1') }}" class="btn btn-light btn-lg">View All Offers →</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- ═══════════ FEATURED PRODUCTS ═══════════ -->
+<section class="container py-5">
+    <div class="ledger-rule reveal-on-scroll"><span class="ledger-mark"></span></div>
+    <div class="d-flex justify-content-between align-items-center mb-4 reveal-on-scroll">
+        <h2 class="section-title mb-0">Featured Products</h2>
+        <a href="{{ url_for('shop') }}" class="btn btn-outline-primary btn-sm">View All <i class="bi bi-arrow-right"></i></a>
+    </div>
+    {% if featured_products %}
+    <div class="row g-4">
+        {% for product in featured_products %}
+        <div class="col-6 col-md-3">
+            <div class="card h-100 shadow-sm product-anim">
+                <div class="card-img-wrap">
+                    {% if product.has_discount %}<span class="discount-badge">{{ product.discount_percent|int }}% OFF</span>{% endif %}
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                        {% if product.image %}
+                        <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="card-img-top" style="height:190px;object-fit:cover;" alt="{{ product.name }}">
+                        {% else %}
+                        <div class="card-img-placeholder"><i class="bi bi-bag"></i></div>
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-1">{{ product.category }}</p>
+                    <h6 class="card-title">
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}" class="text-decoration-none text-dark">{{ product.name }}</a>
+                    </h6>
+                    {% if product.has_discount %}
+                    <p class="mb-1"><span class="price-original">₹{{ "%.0f"|format(product.price) }}</span> <span class="price-final">₹{{ "%.0f"|format(product.final_price) }}</span></p>
+                    {% else %}
+                    <p class="fw-bold mb-1">₹{{ "%.0f"|format(product.price) }}</p>
+                    {% endif %}
+                    {% if product.in_stock() %}<span class="badge bg-success-subtle text-success">In Stock</span>
+                    {% else %}<span class="badge bg-secondary-subtle text-secondary">Out of Stock</span>{% endif %}
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3">
+                    <form method="POST" action="{{ url_for('cart_add', product_id=product.id) }}">
+                        <input type="hidden" name="quantity" value="1">
+                        <button class="btn btn-sm btn-add-cart w-100" {% if not product.in_stock() %}disabled{% endif %}>
+                            <i class="bi bi-cart-plus"></i> {% if product.in_stock() %}Add to Cart{% else %}Out of Stock{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}<p class="text-muted">No products yet.</p>{% endif %}
+</section>
+
+<!-- ═══════════ WHY SHOP WITH US ═══════════ -->
+<section class="container py-5 reveal-on-scroll">
+    <h2 class="section-title text-center mb-2" style="display:block;">Why Shop with Us?</h2>
+    <p class="text-center text-muted mb-5" style="max-width:480px;margin:0 auto;">We obsess over quality, speed, and your experience.</p>
+    <div class="row g-4 text-center">
+        <div class="col-6 col-md-3 reveal-on-scroll stagger-1">
+            <div class="why-card">
+                <div class="why-icon"><i class="bi bi-shield-check"></i></div>
+                <h6 class="mt-3 mb-1">Secure Payments</h6>
+                <p class="small text-muted mb-0">Razorpay encryption keeps every transaction safe.</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 reveal-on-scroll stagger-2">
+            <div class="why-card">
+                <div class="why-icon"><i class="bi bi-truck"></i></div>
+                <h6 class="mt-3 mb-1">Fast Delivery</h6>
+                <p class="small text-muted mb-0">Quick dispatch. Free above ₹999.</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 reveal-on-scroll stagger-3">
+            <div class="why-card">
+                <div class="why-icon"><i class="bi bi-award"></i></div>
+                <h6 class="mt-3 mb-1">Genuine Quality</h6>
+                <p class="small text-muted mb-0">Every product is handpicked for quality.</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 reveal-on-scroll stagger-4">
+            <div class="why-card">
+                <div class="why-icon"><i class="bi bi-headset"></i></div>
+                <h6 class="mt-3 mb-1">Easy Support</h6>
+                <p class="small text-muted mb-0">We're here to help before &amp; after your purchase.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════ PAYMENT STRIP ═══════════ -->
+<section class="container py-4 reveal-on-scroll">
+    <div class="payment-strip">
+        <div class="payment-strip__item">
+            <i class="bi bi-credit-card-2-front fs-3 text-primary"></i>
+            <div><strong>Online Payment</strong><p class="mb-0 small text-muted">UPI, Cards, Netbanking</p></div>
+        </div>
+        <div class="payment-strip__item">
+            <i class="bi bi-cash-coin fs-3 text-success"></i>
+            <div><strong>Cash on Delivery</strong><p class="mb-0 small text-muted">Pay when delivered</p></div>
+        </div>
+        <div class="payment-strip__item">
+            <i class="bi bi-shield-lock fs-3 text-warning"></i>
+            <div><strong>100% Secure</strong><p class="mb-0 small text-muted">SSL encrypted checkout</p></div>
+        </div>
+        <div class="payment-strip__item">
+            <i class="bi bi-truck fs-3 text-danger"></i>
+            <div><strong>Fast Shipping</strong><p class="mb-0 small text-muted">Free above ₹999</p></div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<style>
+/* ── Hero float grid ─────────────────── */
+.hero-float-grid { position:relative; width:280px; height:280px; }
+.hfg-center {
+    position:absolute; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    background:rgba(255,255,255,0.12);
+    border-radius:50%; width:90px; height:90px;
+    display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(8px);
+    animation:float-slow 4s ease-in-out infinite;
+}
+.hfg-item {
+    position:absolute; background:rgba(255,255,255,0.1);
+    border:1px solid rgba(255,255,255,0.2);
+    border-radius:50%; width:58px; height:58px;
+    display:flex; align-items:center; justify-content:center;
+    color:rgba(255,255,255,0.8); backdrop-filter:blur(6px);
+}
+.hfg-1 { top:0;   left:50%; transform:translateX(-50%); animation:float-slow 5s ease-in-out infinite; }
+.hfg-2 { top:25%; right:0;  animation:float-slow 6s ease-in-out infinite reverse; }
+.hfg-3 { bottom:25%; right:0; animation:float-slow 4.5s ease-in-out infinite; }
+.hfg-4 { bottom:0; left:50%; transform:translateX(-50%); animation:float-slow 7s ease-in-out infinite reverse; }
+.hfg-5 { top:25%; left:0;   animation:float-slow 5.5s ease-in-out infinite; }
+
+/* ── Stats strip ─────────────────────── */
+.stats-strip {
+    display:flex; flex-wrap:wrap; justify-content:space-around; align-items:center;
+    background:#fff; border-radius:18px; padding:1.5rem 2rem;
+    box-shadow:0 4px 24px rgba(30,17,71,0.09);
+}
+.stats-item { text-align:center; padding:8px 20px; flex:1 1 120px; }
+.stats-num  { font-size:2rem; font-weight:700; color:var(--kt-ink); font-family:'Fraunces',serif; }
+.stats-label{ display:block; font-size:0.8rem; color:#888; margin-top:2px; }
+.stats-divider { width:1px; height:50px; background:rgba(30,17,71,0.1); }
+
+/* ── Why cards ───────────────────────── */
+.why-card {
+    background:#fff; border-radius:16px; padding:28px 20px;
+    box-shadow:0 4px 20px rgba(30,17,71,0.07);
+    transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s;
+    height:100%;
+}
+.why-card:hover { transform:translateY(-8px); box-shadow:0 16px 36px rgba(30,17,71,0.14); }
+.why-icon {
+    width:60px; height:60px; border-radius:50%; margin:0 auto;
+    background:linear-gradient(135deg, var(--kt-ink), var(--kt-ink-2));
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem; color:var(--kt-marigold);
+    transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.why-card:hover .why-icon { transform:scale(1.15) rotate(-8deg); }
+
+@media(max-width:576px){
+    .stats-divider{display:none;}
+    .stats-strip{gap:8px;}
+}
+</style>
+{% endblock %}

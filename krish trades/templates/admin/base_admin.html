@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - KRISH TRADES{% endblock %}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="d-flex">
+    <nav class="bg-dark text-white p-3" style="width:230px; min-height:100vh;">
+        <div class="brand-mark mb-1" style="font-size:0.95rem;">
+            <span class="brand-mark__krish" style="font-size:1.05rem;">Krish</span><span class="brand-mark__divider"></span><span class="brand-mark__trades" style="font-size:0.65rem;">Trades</span>
+        </div>
+        <h6 class="text-uppercase text-secondary small mb-3" style="letter-spacing:1px;">Admin Panel</h6>
+        <ul class="nav nav-pills flex-column gap-1">
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ url_for('admin_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ url_for('admin_products') }}"><i class="bi bi-box-seam me-2"></i>Products</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ url_for('admin_coupons') }}"><i class="bi bi-ticket-perforated me-2"></i>Coupons</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-white" href="{{ url_for('admin_orders') }}"><i class="bi bi-bag-check me-2"></i>Orders</a>
+            </li>
+            <li class="nav-item mt-3">
+                <a class="nav-link text-white" href="{{ url_for('home') }}"><i class="bi bi-globe me-2"></i>View Store</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link text-danger" href="{{ url_for('admin_logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="flex-grow-1 p-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

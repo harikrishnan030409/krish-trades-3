@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} — KRISH TRADES{% endblock %}
+
+{% block content %}
+<section class="container py-5 fade-in-section">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a href="{{ url_for('shop') }}" class="text-decoration-none">Shop</a></li>
+            {% if product.category %}<li class="breadcrumb-item"><a href="{{ url_for('shop', category=product.category) }}" class="text-decoration-none">{{ product.category }}</a></li>{% endif %}
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-5 align-items-start">
+        <!-- Image column -->
+        <div class="col-md-6 reveal-left reveal-on-scroll">
+            <div class="product-img-wrap">
+                <div class="card-img-wrap">
+                    {% if product.has_discount %}<span class="discount-badge fs-6 px-3 py-2">{{ product.discount_percent|int }}% OFF</span>{% endif %}
+                    {% if product.image %}
+                    <img src="{{ url_for('static', filename='uploads/' + product.image) }}" class="img-fluid rounded-4 shadow product-detail-img w-100" style="max-height:440px;object-fit:cover;" alt="{{ product.name }}">
+                    {% else %}
+                    <div class="card-img-placeholder rounded-4" style="height:380px;font-size:5rem;"><i class="bi bi-bag"></i></div>
+                    {% endif %}
+                </div>
+                {% if product.is_bakrid_offer %}
+                <div class="mt-2">
+                    <span class="badge" style="background:var(--kt-green);font-size:0.8rem;padding:6px 14px;">🌙 Bakrid Special Offer</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Info column -->
+        <div class="col-md-6 reveal-right reveal-on-scroll">
+            <p class="text-muted small mb-1 text-uppercase letter-spacing-1">{{ product.category }}</p>
+            <h2 class="mb-3" style="color:var(--kt-ink);">{{ product.name }}</h2>
+
+            <!-- Price block -->
+            <div class="price-block mb-3">
+                {% if product.has_discount %}
+                <span class="price-original fs-5 me-2">₹{{ "%.2f"|format(product.price) }}</span>
+                <span class="price-final fs-2">₹{{ "%.2f"|format(product.final_price) }}</span>
+                <div class="savings-pill mt-1">
+                    <i class="bi bi-tag-fill me-1"></i>You save ₹{{ "%.2f"|format(product.savings) }} ({{ product.discount_percent|int }}% off)
+                </div>
+                {% else %}
+                <span class="fw-bold fs-2" style="color:var(--kt-ink);">₹{{ "%.2f"|format(product.price) }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Stock -->
+            {% if product.in_stock() %}
+            <span class="badge bg-success-subtle text-success mb-3 px-3 py-2">
+                <i class="bi bi-check-circle me-1"></i>In Stock ({{ product.stock }} available)
+            </span>
+            {% else %}
+            <span class="badge bg-secondary-subtle text-secondary mb-3 px-3 py-2">
+                <i class="bi bi-x-circle me-1"></i>Out of Stock
+            </span>
+            {% endif %}
+
+            <p class="text-muted lh-lg mb-4">{{ product.description }}</p>
+
+            <!-- Add to cart form -->
+            {% if product.in_stock() %}
+            <form method="POST" action="{{ url_for('cart_add', product_id=product.id) }}" class="d-flex align-items-center gap-3 mb-4">
+                <div class="qty-control d-flex align-items-center">
+                    <button type="button" class="qty-btn" onclick="adjustQty(-1)"><i class="bi bi-dash"></i></button>
+                    <input type="number" name="quantity" id="qty" value="1" min="1" max="{{ product.stock }}" class="qty-input">
+                    <button type="button" class="qty-btn" onclick="adjustQty(1)"><i class="bi bi-plus"></i></button>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                    <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                </button>
+            </form>
+            {% else %}
+            <button class="btn btn-secondary btn-lg mb-4 w-100" disabled>Out of Stock</button>
+            {% endif %}
+
+            <!-- Trust badges -->
+            <div class="trust-badges">
+                <div class="trust-badge-item"><i class="bi bi-truck text-primary"></i><span>Fast Delivery</span></div>
+                <div class="trust-badge-item"><i class="bi bi-shield-check text-success"></i><span>Secure Payment</span></div>
+                <div class="trust-badge-item"><i class="bi bi-cash-coin text-warning"></i><span>COD Available</span></div>
+                <div class="trust-badge-item"><i class="bi bi-arrow-counterclockwise text-danger"></i><span>Easy Returns</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related products -->
+    {% if related %}
+    <div class="mt-6 reveal-on-scroll" style="margin-top:4rem;">
+        <div class="ledger-rule"><span class="ledger-mark"></span></div>
+        <h4 class="mb-4 section-title">You May Also Like</h4>
+        <div class="row g-4">
+            {% for r in related %}
+            <div class="col-6 col-md-3">
+                <div class="card h-100 shadow-sm product-anim">
+                    <div class="card-img-wrap">
+                        {% if r.has_discount %}<span class="discount-badge">{{ r.discount_percent|int }}% OFF</span>{% endif %}
+                        <a href="{{ url_for('product_detail', product_id=r.id) }}">
+                            {% if r.image %}
+                            <img src="{{ url_for('static', filename='uploads/' + r.image) }}" class="card-img-top" style="height:160px;object-fit:cover;" alt="{{ r.name }}">
+                            {% else %}
+                            <div class="card-img-placeholder" style="height:160px;"><i class="bi bi-bag"></i></div>
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title"><a href="{{ url_for('product_detail', product_id=r.id) }}" class="text-decoration-none text-dark">{{ r.name }}</a></h6>
+                        {% if r.has_discount %}
+                        <p class="mb-0"><span class="price-original">₹{{ "%.0f"|format(r.price) }}</span> <span class="price-final">₹{{ "%.0f"|format(r.final_price) }}</span></p>
+                        {% else %}
+                        <p class="fw-bold mb-0">₹{{ "%.0f"|format(r.price) }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
+
+{% block scripts %}
+<style>
+.qty-control {
+    border:2px solid rgba(30,17,71,0.15); border-radius:10px; overflow:hidden;
+    background:#fff;
+}
+.qty-btn {
+    background:transparent; border:none; padding:10px 14px;
+    cursor:pointer; font-size:1rem; color:var(--kt-ink);
+    transition:background 0.2s;
+}
+.qty-btn:hover { background:rgba(30,17,71,0.06); }
+.qty-input {
+    width:52px; border:none; text-align:center; font-weight:600;
+    font-size:1rem; color:var(--kt-ink); outline:none;
+    -moz-appearance:textfield;
+}
+.qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button { -webkit-appearance:none; }
+.savings-pill {
+    display:inline-block; background:rgba(15,107,79,0.1);
+    color:var(--kt-green-dark); border-radius:20px; padding:4px 12px;
+    font-size:0.82rem; font-weight:500;
+}
+.trust-badges {
+    display:flex; flex-wrap:wrap; gap:10px;
+    padding:16px; background:#fff;
+    border-radius:14px; border:1px solid rgba(30,17,71,0.08);
+}
+.trust-badge-item {
+    display:flex; align-items:center; gap:7px;
+    font-size:0.82rem; font-weight:500; color:#444;
+    flex:1 1 130px;
+}
+.trust-badge-item i { font-size:1.1rem; }
+</style>
+<script>
+function adjustQty(delta) {
+    var inp = document.getElementById('qty');
+    var val = parseInt(inp.value) + delta;
+    var max = parseInt(inp.max);
+    inp.value = Math.max(1, Math.min(max, val));
+}
+</script>
+{% endblock %}
